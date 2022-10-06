@@ -17,20 +17,24 @@ git diff  可以查看修改内容
 git log可以查看提交历史，以便确定要回退到哪个版本。
 git reflog查看命令历史，以便确定要回到未来的哪个版本。
 git reset --hard commit_id     HEAD指向的版本就是当前版本，因此，Git允许我们在版本的历史之间穿梭
-
+git diff HEAD -- 文件名。查看工作区和版本库的区别
 git checkout -- file      当你改乱了工作区某个文件的内容，想直接丢弃工作区的修改时
-git reset HEAD <file> 当你不但改乱了工作区某个文件的内容，还添加到了暂存区时，想丢弃修改，
+git reset HEAD file 当你不但改乱了工作区某个文件的内容，还添加到了暂存区时，想丢弃暂存区修改回撤到工作区，
 rm test.txt        	删除工作区的文件，
-如果误删工作区的文件，或者吧版本区的文件也删除
+如果误删工作区的文件，或者版本区的文件也删除
 git rm test.txt  				 删除版本库中的文件
 $ git checkout -- test.txt     	或从版本区回复被删除文件
 $ ssh-keygen -t rsa -C "youremail@example.com"   创建SSH key
 $ git remote add origin git@github.com:michaelliao/learngit.git   添加远程仓库
 git push -u origin master					关联后，第一次推送master分支的所有内容，使用的命令；
 git push origin master  						之后推送使用的命令
+
+ git remote rm origin   如果添加的时候地址写错了，或者就是想删除远程库 ,建议先用git remote -v查看远程库信息
+ git remote -v   查看远程库信息，使用
+ 
 $ git clone git@github.com:michaelliao/gitskills.git    远程仓库克隆使用的命令
 https://github.com/michaelliao/gitskills.git   Git支持多种协议，默认的git://使用ssh，但也可以使用https等其他协议。使用https除了速度慢以									外，还有个最大的麻烦是每次推送都必须输入口令，但是在某些只开放http端口的公司内部就无									法使用ssh协议而只能用https。
-  
+ 
  git branch    查看分支 
  git branch <name>    创建分支
  git checkout <name>  切换分支
@@ -39,27 +43,44 @@ https://github.com/michaelliao/gitskills.git   Git支持多种协议，默认的
  git branch -d <name>   删除分支
 git log  可以看到分支的合并情况
 git log --graph命令可以看到分支合并图
-$ git merge --no-ff -m "merge with no-ff" dev        合并分支时，加上--no-ff参数就可以用普通模式合并，合并后的历史有分支，能看出来曾										  经做过合并，而fast forward合并就看不出来曾经做过合并。因为本次合并要创建一个											   新的commit，所以加上-m参数，把commit描述写进去。
+git log --pretty=oneline --abbrev-commit 看到极简log commit日志
+$ git merge --no-ff -m "merge with no-ff" dev        合并分支时，加上--no-ff参数就可以用普通模式合并，合并后的历史有分支，能看出来曾经做过合并，而fast forward合并就看不出来曾经做过合并。因为本次合并要创建一个新的commit，所以加上-m参数，把commit描述写进去。
 
 
 git stash	当手头工作没有完成时，先把工作现场保留
-git stash pop    恢复现场
+git stash list 保存的现场列表
+git stash drop 丢弃保存的现场
+git stash pop    恢复现场，同时丢弃保存的现场
+git cherry-pick commit版本号    在master分支上修复的bug，想要合并到当前dev分支，可以用git cherry-pick <commit>命令，把bug提交的修改“复制”到当前分支，避免重复劳动，（https://www.liaoxuefeng.com/wiki/896043488029600/900388704535136）  
+
 git branch -D <name>     丢弃一个没有被合并过的分支，强行删除
-git remote -v   查看远程库信息，使用
 git push origin branch-name    从本地推送分支， 如果推送失败，先用git pull抓取远程的新提交；
 git checkout -b branch-name origin/branch-name   在本地创建和远程分支对应的分支，使用，本地和远程分支的名称最好一致；
-git branch --set-upstream branch-name origin/branch-name     建立本地分支和远程分支的关联，使用；
+git branch --set-upstream branch-name origin/branch-name     如果git pull提示no tracking information，则说明本地分支和远程分支的链接关系没有创建
 git pull  从远程抓取分支，使用，如果有冲突，要先处理冲突
 
+git rebase 变基让git log 分支提交线变的更简洁
 git tag <tagname>  命令用于新建一个标签，默认为HEAD，也可以指定一个commit id；
 git tag -a <tagname> -m "blablabla..."  命令可以指定标签信息；
+git tag -a v0.1 -m "version 0.1 released" 1094adb  指定commit的tag信息设置
 git tag可以查看所有标签。
+git show <tagname> 查看标签详细信息
 
-git push origin <tagname>可以推送一个本地标签； git push origin --tags可以推送全部未推送过的本地标签； git tag -d <tagname>可以删除一个本地标签； git push origin :refs/tags/<tagname>可以删除一个远程标签。 
-在GitHub上，可以任意Fork开源仓库； 自己拥有Fork后的仓库的读写权限； 可以推送pull request给官方仓库来贡献代码。 
+git push origin <tagname>可以推送一个本地标签；
+git push origin --tags可以推送全部未推送过的本地标签；
+git tag -d <tagname>可以删除一个本地标签；
+git push origin :refs/tags/<tagname>可以删除一个远程标签
 
- 
- 
+在.git/config，文件末尾[alias] 后加配置的别名，例如：
+[alias]
+    last = log -1
+git config --global alias.别名 原名  配置别名的命令
+git config --global alias.co checkout
+git config --global alias.ci commit
+git config --global alias.br branch
+git config --global alias.st status
+git config --global alias.unstage 'reset HEAD'
+也可以在当前用户的Git配置文件放在用户主目录下的一个隐藏文件.gitconfig中配置成全局的别名，方式一样
 
 
 
